@@ -1,19 +1,9 @@
 import React, { useState } from 'react';
 import { AlertCircle, LogOut, Plus, Edit2, Trash2, DollarSign, TrendingUp, Clock, CheckCircle, ChevronRight, Settings, Eye, Shield, ChevronDown, ChevronUp, Building2, User, FileText, Target, BarChart3, ExternalLink, Upload, Calendar } from 'lucide-react';
-
-const Section = ({ title, sectionKey, children, expandedSections, toggleSection }) => (
-  <div className="border border-gray-200 rounded-lg mb-4">
-    <button 
-      type="button" 
-      onClick={() => toggleSection(sectionKey)} 
-      className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors rounded-t-lg"
-    >
-      <h3 className="text-md font-semibold text-gray-900">{title}</h3>
-      {expandedSections[sectionKey] ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
-    </button>
-    {expandedSections[sectionKey] && <div className="p-4 space-y-4">{children}</div>}
-  </div>
-);
+import Section from './components/Section';
+import AuthPanel from './components/AuthPanel';
+import StatsPanel from './components/StatsPanel';
+import OpportunityList from './components/OpportunityList';
 
 const MySalesOps = () => {
   // Users
@@ -411,20 +401,6 @@ const MySalesOps = () => {
   const activeAgencyTypes = agencyTypes.filter(t => t.isActive);
   const activeForecastGroups = forecastGroups.filter(g => g.isActive).sort((a, b) => a.order - b.order);
   const activeCapabilityGroups = capabilityGroups.filter(g => g.isActive).sort((a, b) => a.order - b.order);
-
-  const Section = ({ title, sectionKey, children }) => (
-    <div className="border border-gray-200 rounded-lg mb-4">
-      <button 
-        type="button" 
-        onClick={() => toggleSection(sectionKey)} 
-        className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors rounded-t-lg"
-      >
-        <h3 className="text-md font-semibold text-gray-900">{title}</h3>
-        {expandedSections[sectionKey] ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
-      </button>
-      {expandedSections[sectionKey] && <div className="p-4 space-y-4">{children}</div>}
-    </div>
-  );
 
   // Login Screen
   if (!isAuthenticated) {
@@ -1675,472 +1651,176 @@ const MySalesOps = () => {
                       )}
                     </Section>
 
-                    {isExtendedForm && (
-                      <>
-                        <Section title="Key Dates" sectionKey="dates" expandedSections={expandedSections} toggleSection={toggleSection}>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Project Start Date</label>
-                              <input key="opp-start" type="date" value={formData.project_start_date || ''} onChange={(e) => setFormData({...formData, project_start_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Planned RFP Release</label>
-                              <input key="opp-rfp-plan" type="date" value={formData.planned_rfp_release_date || ''} onChange={(e) => setFormData({...formData, planned_rfp_release_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Actual RFP Release</label>
-                              <input key="opp-rfp-actual" type="date" value={formData.actual_rfp_release_date || ''} onChange={(e) => setFormData({...formData, actual_rfp_release_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Planned Proposal Submission</label>
-                              <input key="opp-prop-plan" type="date" value={formData.planned_proposal_submission_date || ''} onChange={(e) => setFormData({...formData, planned_proposal_submission_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Actual Proposal Submission</label>
-                            <input key="opp-prop-actual" type="date" value={formData.actual_proposal_submission_date || ''} onChange={(e) => setFormData({...formData, actual_proposal_submission_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                          </div>
-                        </Section>
-
-                        <Section title="Contract Information" sectionKey="contract" expandedSections={expandedSections} toggleSection={toggleSection}>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Contract Type</label>
-                              <select key="opp-contract-type" value={formData.contract_type || ''} onChange={(e) => setFormData({...formData, contract_type: e.target.value})} className="w-full px-3 py-2 border rounded-lg">
-                                <option value="">Select</option>
-                                <option value="FFP">Firm Fixed Price (FFP)</option>
-                                <option value="T&M">Time & Materials (T&M)</option>
-                                <option value="Cost Plus">Cost Plus</option>
-                                <option value="IDIQ">IDIQ</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Solicitation Number</label>
-                              <input key="opp-sol" type="text" value={formData.solicitation_number || ''} onChange={(e) => setFormData({...formData, solicitation_number: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Acquisition Type</label>
-                              <select key="opp-acq-type" value={formData.acquisition_type || ''} onChange={(e) => setFormData({...formData, acquisition_type: e.target.value})} className="w-full px-3 py-2 border rounded-lg">
-                                <option value="">Select</option>
-                                <option value="Full and Open">Full and Open</option>
-                                <option value="Set Aside">Set Aside</option>
-                                <option value="Sole Source">Sole Source</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Duration (months)</label>
-                              <input key="opp-duration" type="number" value={formData.duration || ''} onChange={(e) => setFormData({...formData, duration: e.target.value})} className="w-full px-3 py-2 border rounded-lg" min="0" />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Place of Performance</label>
-                            <input key="opp-place" type="text" value={formData.place_of_performance || ''} onChange={(e) => setFormData({...formData, place_of_performance: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                          </div>
-                          <div>
-                            <label className="flex items-center gap-2">
-                              <input key="opp-direct" type="checkbox" checked={formData.direct_award || false} onChange={(e) => setFormData({...formData, direct_award: e.target.checked})} className="rounded" />
-                              <span className="text-sm font-medium text-gray-700">Direct Award</span>
-                            </label>
-                          </div>
-                        </Section>
-
-                        <Section title="Competitive Information" sectionKey="competitive" expandedSections={expandedSections} toggleSection={toggleSection}>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Incumbent</label>
-                              <input key="opp-incumbent" type="text" value={formData.incumbent || ''} onChange={(e) => setFormData({...formData, incumbent: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Incumbent Contract #</label>
-                              <input key="opp-inc-contract" type="text" value={formData.incumbent_contract_number || ''} onChange={(e) => setFormData({...formData, incumbent_contract_number: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">DB Competitor</label>
-                              <input key="opp-db-comp" type="text" value={formData.db_competitor || ''} onChange={(e) => setFormData({...formData, db_competitor: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Winning Competitor</label>
-                              <input key="opp-win-comp" type="text" value={formData.winning_competitor || ''} onChange={(e) => setFormData({...formData, winning_competitor: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                          </div>
-                        </Section>
-
-                        <Section title="Business Classification" sectionKey="business" expandedSections={expandedSections} toggleSection={toggleSection}>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Primary Business Line</label>
-                              <input key="opp-biz-line" type="text" value={formData.primary_business_line || ''} onChange={(e) => setFormData({...formData, primary_business_line: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Primary NAICS Code</label>
-                              <input key="opp-naics" type="text" value={formData.primary_naics_code || ''} onChange={(e) => setFormData({...formData, primary_naics_code: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Portfolio</label>
-                              <input key="opp-portfolio" type="text" value={formData.portfolio || ''} onChange={(e) => setFormData({...formData, portfolio: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Revenue Stream</label>
-                              <input key="opp-rev-stream" type="text" value={formData.revenue_stream || ''} onChange={(e) => setFormData({...formData, revenue_stream: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                          </div>
-                        </Section>
-
-                        <Section title="Project Codes & References" sectionKey="codes" expandedSections={expandedSections} toggleSection={toggleSection}>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">B&P Code</label>
-                              <input key="opp-bp" type="text" value={formData.bp_code || ''} onChange={(e) => setFormData({...formData, bp_code: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">CostPoint Project Code</label>
-                              <input key="opp-cp" type="text" value={formData.costpoint_project_code || ''} onChange={(e) => setFormData({...formData, costpoint_project_code: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">GovWin ID</label>
-                              <input key="opp-govwin" type="text" value={formData.govwin_id || ''} onChange={(e) => setFormData({...formData, govwin_id: e.target.value})} className="w-full px-3 py-2 border rounded-lg" maxLength="6" />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Legacy ID</label>
-                              <input key="opp-legacy" type="text" value={formData.legacy_id || ''} onChange={(e) => setFormData({...formData, legacy_id: e.target.value})} className="w-full px-3 py-2 border rounded-lg" maxLength="10" />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Opportunity Link</label>
-                            <input key="opp-link" type="text" value={formData.opportunity_link || ''} onChange={(e) => setFormData({...formData, opportunity_link: e.target.value})} className="w-full px-3 py-2 border rounded-lg" placeholder="https://..." />
-                          </div>
-                        </Section>
-
-                        <Section title="Status & Flags" sectionKey="status" expandedSections={expandedSections} toggleSection={toggleSection}>
-                          <div className="space-y-2">
-                            <label className="flex items-center gap-2">
-                              <input key="opp-budget" type="checkbox" checked={formData.budget_confirmed || false} onChange={(e) => setFormData({...formData, budget_confirmed: e.target.checked})} className="rounded" />
-                              <span className="text-sm font-medium text-gray-700">Budget Confirmed</span>
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input key="opp-discovery" type="checkbox" checked={formData.discovery_completed || false} onChange={(e) => setFormData({...formData, discovery_completed: e.target.checked})} className="rounded" />
-                              <span className="text-sm font-medium text-gray-700">Discovery Completed</span>
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input key="opp-roi" type="checkbox" checked={formData.roi_analysis_completed || false} onChange={(e) => setFormData({...formData, roi_analysis_completed: e.target.checked})} className="rounded" />
-                              <span className="text-sm font-medium text-gray-700">ROI Analysis Completed</span>
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input key="opp-front" type="checkbox" checked={formData.front_door || false} onChange={(e) => setFormData({...formData, front_door: e.target.checked})} className="rounded" />
-                              <span className="text-sm font-medium text-gray-700">Front Door</span>
-                            </label>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Loss / No-Bid Reason</label>
-                            <input key="opp-loss" type="text" value={formData.loss_reason || ''} onChange={(e) => setFormData({...formData, loss_reason: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Customer Feedback / Debrief</label>
-                            <textarea key="opp-feedback" value={formData.customer_feedback || ''} onChange={(e) => setFormData({...formData, customer_feedback: e.target.value})} rows="3" className="w-full px-3 py-2 border rounded-lg" />
-                          </div>
-                        </Section>
-                      </>
-                    )}
-
-                    <Section title="Capabilities & Revenue Mix" sectionKey="capabilities" expandedSections={expandedSections} toggleSection={toggleSection}>
-                      <div className="space-y-4">
-                        {activeCapabilityGroups.map(group => (
-                          <div key={group.id}>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">{group.name}</label>
-                            <div className="space-y-2">
-                              {getActiveCapabilitiesByGroup(group.id).map(capability => {
-                                const capData = (formData.capabilities || []).find(c => c.capabilityId === capability.id);
-                                return (
-                                  <div key={capability.id} className="flex items-center gap-4">
-                                    <label className="flex items-center gap-2 flex-1">
-                                      <input
-                                        type="checkbox"
-                                        checked={!!capData}
-                                        onChange={(e) => {
-                                          const caps = formData.capabilities || [];
-                                          if (e.target.checked) {
-                                            setFormData({...formData, capabilities: [...caps, { capabilityId: capability.id, revenuePercent: 0 }]});
-                                          } else {
-                                            setFormData({...formData, capabilities: caps.filter(c => c.capabilityId !== capability.id)});
-                                          }
-                                        }}
-                                        className="rounded"
-                                      />
-                                      <span className="text-sm text-gray-700">{capability.name}</span>
-                                    </label>
-                                    {capData && (
-                                      <div className="flex items-center gap-2">
-                                        <input
-                                          type="number"
-                                          value={capData.revenuePercent || 0}
-                                          onChange={(e) => {
-                                            const caps = formData.capabilities || [];
-                                            setFormData({
-                                              ...formData, 
-                                              capabilities: caps.map(c => c.capabilityId === capability.id ? {...c, revenuePercent: Number(e.target.value)} : c)
-                                            });
-                                          }}
-                                          min="0"
-                                          max="100"
-                                          className="w-20 px-2 py-1 border rounded text-sm"
-                                        />
-                                        <span className="text-sm text-gray-500">%</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
-                        {(formData.capabilities || []).length > 0 && (
-                          <div className="pt-3 border-t">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">Total:</span>
-                              <span className={`text-sm font-bold ${(formData.capabilities || []).reduce((sum, c) => sum + (Number(c.revenuePercent) || 0), 0) === 100 ? 'text-green-600' : 'text-orange-600'}`}>
-                                {(formData.capabilities || []).reduce((sum, c) => sum + (Number(c.revenuePercent) || 0), 0)}%
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </Section>
-
-                    <Section title="Notes" sectionKey="notes" expandedSections={expandedSections} toggleSection={toggleSection}>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Opportunity Notes</label>
-                        <textarea key="opp-notes" value={formData.notes || ''} onChange={(e) => setFormData({...formData, notes: e.target.value})} rows="4" className="w-full px-3 py-2 border rounded-lg" placeholder="Additional notes about this opportunity..." />
-                      </div>
-                    </Section>
-                  </>
-                )}
-
-                {formType === 'forecast' && (
-                  <>
-                    <Section title="Forecast Details" sectionKey="basic" expandedSections={expandedSections} toggleSection={toggleSection}>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Fiscal Year *</label>
-                        <input key="forecast-year" type="number" value={formData.fiscalYear || ''} onChange={(e) => setFormData({...formData, fiscalYear: Number(e.target.value)})} className="w-full px-3 py-2 border rounded-lg" required />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">Group Targets</label>
-                        <div className="space-y-4">
-                          {(formData.groups || []).map((group, idx) => {
-                            const groupName = getForecastGroupName(group.groupId);
-                            return (
-                              <div key={group.groupId} className="border rounded-lg p-4 bg-gray-50">
-                                <h4 className="font-semibold text-gray-900 mb-3">{groupName}</h4>
-                                <div className="grid grid-cols-3 gap-4">
-                                  <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Target</label>
-                                    <input 
-                                      key={`forecast-${group.groupId}-target`}
-                                      type="number" 
-                                      value={group.target || ''} 
-                                      onChange={(e) => {
-                                        const newGroups = [...formData.groups];
-                                        newGroups[idx] = {...group, target: Number(e.target.value)};
-                                        setFormData({...formData, groups: newGroups});
-                                      }}
-                                      className="w-full px-3 py-2 border rounded-lg text-sm" 
-                                      min="0"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Actual</label>
-                                    <input 
-                                      key={`forecast-${group.groupId}-actual`}
-                                      type="number" 
-                                      value={group.actual || ''} 
-                                      onChange={(e) => {
-                                        const newGroups = [...formData.groups];
-                                        newGroups[idx] = {...group, actual: Number(e.target.value)};
-                                        setFormData({...formData, groups: newGroups});
-                                      }}
-                                      className="w-full px-3 py-2 border rounded-lg text-sm" 
-                                      min="0"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Pipeline</label>
-                                    <input 
-                                      key={`forecast-${group.groupId}-pipeline`}
-                                      type="number" 
-                                      value={group.pipeline || ''} 
-                                      onChange={(e) => {
-                                        const newGroups = [...formData.groups];
-                                        newGroups[idx] = {...group, pipeline: Number(e.target.value)};
-                                        setFormData({...formData, groups: newGroups});
-                                      }}
-                                      className="w-full px-3 py-2 border rounded-lg text-sm" 
-                                      min="0"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
+                    <Section title="Key Dates" sectionKey="dates" expandedSections={expandedSections} toggleSection={toggleSection}>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Project Start Date</label>
+                          <input key="opp-start" type="date" value={formData.project_start_date || ''} onChange={(e) => setFormData({...formData, project_start_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
                         </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                        <textarea key="forecast-notes" value={formData.notes || ''} onChange={(e) => setFormData({...formData, notes: e.target.value})} rows="3" className="w-full px-3 py-2 border rounded-lg" />
-                      </div>
-                    </Section>
-                  </>
-                )}
-
-                {formType === 'agency' && (
-                  <>
-                    <Section title="Agency Information" sectionKey="basic" expandedSections={expandedSections} toggleSection={toggleSection}>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Agency Name *</label>
-                        <input key="agency-name" type="text" value={formData.name || ''} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg" required />
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Planned RFP Release</label>
+                          <input key="opp-rfp-plan" type="date" value={formData.planned_rfp_release_date || ''} onChange={(e) => setFormData({...formData, planned_rfp_release_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Agency Type</label>
-                          <select key="agency-type" value={formData.agencyType || ''} onChange={(e) => setFormData({...formData, agencyType: e.target.value})} className="w-full px-3 py-2 border rounded-lg">
-                            {activeAgencyTypes.map(t => <option key={t.id} value={t.name}>{t.name}</option>)}
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Actual RFP Release</label>
+                          <input key="opp-rfp-actual" type="date" value={formData.actual_rfp_release_date || ''} onChange={(e) => setFormData({...formData, actual_rfp_release_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Planned Proposal Submission</label>
+                          <input key="opp-prop-plan" type="date" value={formData.planned_proposal_submission_date || ''} onChange={(e) => setFormData({...formData, planned_proposal_submission_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Actual Proposal Submission</label>
+                        <input key="opp-prop-actual" type="date" value={formData.actual_proposal_submission_date || ''} onChange={(e) => setFormData({...formData, actual_proposal_submission_date: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                      </div>
+                    </Section>
+
+                    <Section title="Contract Information" sectionKey="contract" expandedSections={expandedSections} toggleSection={toggleSection}>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Contract Type</label>
+                          <select key="opp-contract-type" value={formData.contract_type || ''} onChange={(e) => setFormData({...formData, contract_type: e.target.value})} className="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Select</option>
+                            <option value="FFP">Firm Fixed Price (FFP)</option>
+                            <option value="T&M">Time & Materials (T&M)</option>
+                            <option value="Cost Plus">Cost Plus</option>
+                            <option value="IDIQ">IDIQ</option>
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                          <input key="agency-phone" type="tel" value={formData.phone || ''} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Solicitation Number</label>
+                          <input key="opp-sol" type="text" value={formData.solicitation_number || ''} onChange={(e) => setFormData({...formData, solicitation_number: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
                         </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <input key="agency-address" type="text" value={formData.address || ''} onChange={(e) => setFormData({...formData, address: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                          <input key="agency-city" type="text" value={formData.city || ''} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                          <input key="agency-state" type="text" value={formData.state || ''} onChange={(e) => setFormData({...formData, state: e.target.value})} className="w-full px-3 py-2 border rounded-lg" maxLength="2" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">ZIP</label>
-                          <input key="agency-zip" type="text" value={formData.zip || ''} onChange={(e) => setFormData({...formData, zip: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
-                        <input key="agency-website" type="text" value={formData.website || ''} onChange={(e) => setFormData({...formData, website: e.target.value})} className="w-full px-3 py-2 border rounded-lg" placeholder="www.example.gov" />
-                      </div>
-                    </Section>
-                  </>
-                )}
-
-                {formType === 'contact' && (
-                  <>
-                    <Section title="Contact Information" sectionKey="basic" expandedSections={expandedSections} toggleSection={toggleSection}>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Agency *</label>
-                        <select key="contact-agency" value={formData.agencyId || ''} onChange={(e) => setFormData({...formData, agencyId: Number(e.target.value)})} className="w-full px-3 py-2 border rounded-lg" required>
-                          <option value="">Select Agency</option>
-                          {agencies.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                        </select>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                          <input key="contact-first" type="text" value={formData.firstName || ''} onChange={(e) => setFormData({...formData, firstName: e.target.value})} className="w-full px-3 py-2 border rounded-lg" required />
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Acquisition Type</label>
+                          <select key="opp-acq-type" value={formData.acquisition_type || ''} onChange={(e) => setFormData({...formData, acquisition_type: e.target.value})} className="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Select</option>
+                            <option value="Full and Open">Full and Open</option>
+                            <option value="Set Aside">Set Aside</option>
+                            <option value="Sole Source">Sole Source</option>
+                          </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-                          <input key="contact-last" type="text" value={formData.lastName || ''} onChange={(e) => setFormData({...formData, lastName: e.target.value})} className="w-full px-3 py-2 border rounded-lg" required />
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Duration (months)</label>
+                          <input key="opp-duration" type="number" value={formData.duration || ''} onChange={(e) => setFormData({...formData, duration: e.target.value})} className="w-full px-3 py-2 border rounded-lg" min="0" />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                        <input key="contact-title" type="text" value={formData.title || ''} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Place of Performance</label>
+                        <input key="opp-place" type="text" value={formData.place_of_performance || ''} onChange={(e) => setFormData({...formData, place_of_performance: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                      </div>
+                      <div>
+                        <label className="flex items-center gap-2">
+                          <input key="opp-direct" type="checkbox" checked={formData.direct_award || false} onChange={(e) => setFormData({...formData, direct_award: e.target.checked})} className="rounded" />
+                          <span className="text-sm font-medium text-gray-700">Direct Award</span>
+                        </label>
+                      </div>
+                    </Section>
+
+                    <Section title="Competitive Information" sectionKey="competitive" expandedSections={expandedSections} toggleSection={toggleSection}>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Incumbent</label>
+                          <input key="opp-incumbent" type="text" value={formData.incumbent || ''} onChange={(e) => setFormData({...formData, incumbent: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Incumbent Contract #</label>
+                          <input key="opp-inc-contract" type="text" value={formData.incumbent_contract_number || ''} onChange={(e) => setFormData({...formData, incumbent_contract_number: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                          <input key="contact-email" type="email" value={formData.email || ''} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                          <label className="block text-sm font-medium text-gray-700 mb-1">DB Competitor</label>
+                          <input key="opp-db-comp" type="text" value={formData.db_competitor || ''} onChange={(e) => setFormData({...formData, db_competitor: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                          <input key="contact-phone" type="tel" value={formData.phone || ''} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Winning Competitor</label>
+                          <input key="opp-win-comp" type="text" value={formData.winning_competitor || ''} onChange={(e) => setFormData({...formData, winning_competitor: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                      </div>
+                    </Section>
+
+                    <Section title="Business Classification" sectionKey="business" expandedSections={expandedSections} toggleSection={toggleSection}>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Primary Business Line</label>
+                          <input key="opp-biz-line" type="text" value={formData.primary_business_line || ''} onChange={(e) => setFormData({...formData, primary_business_line: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Primary NAICS Code</label>
+                          <input key="opp-naics" type="text" value={formData.primary_naics_code || ''} onChange={(e) => setFormData({...formData, primary_naics_code: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Portfolio</label>
+                          <input key="opp-portfolio" type="text" value={formData.portfolio || ''} onChange={(e) => setFormData({...formData, portfolio: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Revenue Stream</label>
+                          <input key="opp-rev-stream" type="text" value={formData.revenue_stream || ''} onChange={(e) => setFormData({...formData, revenue_stream: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                      </div>
+                    </Section>
+
+                    <Section title="Project Codes & References" sectionKey="codes" expandedSections={expandedSections} toggleSection={toggleSection}>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">B&P Code</label>
+                          <input key="opp-bp" type="text" value={formData.bp_code || ''} onChange={(e) => setFormData({...formData, bp_code: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">CostPoint Project Code</label>
+                          <input key="opp-cp" type="text" value={formData.costpoint_project_code || ''} onChange={(e) => setFormData({...formData, costpoint_project_code: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">GovWin ID</label>
+                          <input key="opp-govwin" type="text" value={formData.govwin_id || ''} onChange={(e) => setFormData({...formData, govwin_id: e.target.value})} className="w-full px-3 py-2 border rounded-lg" maxLength="6" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Legacy ID</label>
+                          <input key="opp-legacy" type="text" value={formData.legacy_id || ''} onChange={(e) => setFormData({...formData, legacy_id: e.target.value})} className="w-full px-3 py-2 border rounded-lg" maxLength="10" />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
-                        <input key="contact-mobile" type="tel" value={formData.mobile || ''} onChange={(e) => setFormData({...formData, mobile: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Opportunity Link</label>
+                        <input key="opp-link" type="text" value={formData.opportunity_link || ''} onChange={(e) => setFormData({...formData, opportunity_link: e.target.value})} className="w-full px-3 py-2 border rounded-lg" placeholder="https://..." />
                       </div>
                     </Section>
-                  </>
-                )}
 
-                {formType === 'stage' && (
-                  <>
-                    <Section title="Stage Details" sectionKey="basic" expandedSections={expandedSections} toggleSection={toggleSection}>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Stage Name *</label>
-                        <input key="stage-name" type="text" value={formData.name || ''} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg" required />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>
-                        <input key="stage-order" type="number" value={formData.order || ''} onChange={(e) => setFormData({...formData, order: Number(e.target.value)})} className="w-full px-3 py-2 border rounded-lg" min="1" />
-                      </div>
-                      <div>
+                    <Section title="Status & Flags" sectionKey="status" expandedSections={expandedSections} toggleSection={toggleSection}>
+                      <div className="space-y-2">
                         <label className="flex items-center gap-2">
-                          <input key="stage-active" type="checkbox" checked={formData.isActive !== false} onChange={(e) => setFormData({...formData, isActive: e.target.checked})} className="rounded" />
-                          <span className="text-sm font-medium text-gray-700">Active</span>
+                          <input key="opp-budget" type="checkbox" checked={formData.budget_confirmed || false} onChange={(e) => setFormData({...formData, budget_confirmed: e.target.checked})} className="rounded" />
+                          <span className="text-sm font-medium text-gray-700">Budget Confirmed</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input key="opp-discovery" type="checkbox" checked={formData.discovery_completed || false} onChange={(e) => setFormData({...formData, discovery_completed: e.target.checked})} className="rounded" />
+                          <span className="text-sm font-medium text-gray-700">Discovery Completed</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input key="opp-roi" type="checkbox" checked={formData.roi_analysis_completed || false} onChange={(e) => setFormData({...formData, roi_analysis_completed: e.target.checked})} className="rounded" />
+                          <span className="text-sm font-medium text-gray-700">ROI Analysis Completed</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input key="opp-front" type="checkbox" checked={formData.front_door || false} onChange={(e) => setFormData({...formData, front_door: e.target.checked})} className="rounded" />
+                          <span className="text-sm font-medium text-gray-700">Front Door</span>
                         </label>
                       </div>
-                    </Section>
-                  </>
-                )}
-
-                {formType === 'agencyType' && (
-                  <>
-                    <Section title="Agency Type Details" sectionKey="basic" expandedSections={expandedSections} toggleSection={toggleSection}>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Type Name *</label>
-                        <input key="agencytype-name" type="text" value={formData.name || ''} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg" required />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Loss / No-Bid Reason</label>
+                        <input key="opp-loss" type="text" value={formData.loss_reason || ''} onChange={(e) => setFormData({...formData, loss_reason: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
                       </div>
                       <div>
-                        <label className="flex items-center gap-2">
-                          <input key="agencytype-active" type="checkbox" checked={formData.isActive !== false} onChange={(e) => setFormData({...formData, isActive: e.target.checked})} className="rounded" />
-                          <span className="text-sm font-medium text-gray-700">Active</span>
-                        </label>
-                      </div>
-                    </Section>
-                  </>
-                )}
-
-                {formType === 'forecastGroup' && (
-                  <>
-                    <Section title="Forecast Group Details" sectionKey="basic" expandedSections={expandedSections} toggleSection={toggleSection}>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Group Name *</label>
-                        <input key="forecastgroup-name" type="text" value={formData.name || ''} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg" required />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>
-                        <input key="forecastgroup-order" type="number" value={formData.order || ''} onChange={(e) => setFormData({...formData, order: Number(e.target.value)})} className="w-full px-3 py-2 border rounded-lg" min="1" />
-                      </div>
-                      <div>
-                        <label className="flex items-center gap-2">
-                          <input key="forecastgroup-active" type="checkbox" checked={formData.isActive !== false} onChange={(e) => setFormData({...formData, isActive: e.target.checked})} className="rounded" />
-                          <span className="text-sm font-medium text-gray-700">Active</span>
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Customer Feedback / Debrief</label>
+                        <textarea key="opp-feedback" value={formData.customer_feedback || ''} onChange={(e) => setFormData({...formData, customer_feedback: e.target.value})} rows="3" className="w-full px-3 py-2 border rounded-lg" />
                       </div>
                     </Section>
                   </>
