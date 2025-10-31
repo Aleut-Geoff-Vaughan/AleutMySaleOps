@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-export const Modal = React.memo(({
+export const Modal = ({
   isOpen,
   onClose,
   title,
@@ -10,8 +10,11 @@ export const Modal = React.memo(({
   size = 'md',
   ...props
 }) => {
+  console.log('🔴 Modal render - isOpen:', isOpen);
+
   useEffect(() => {
     if (isOpen) {
+      console.log('🟡 Modal opened - setting body overflow');
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -21,7 +24,12 @@ export const Modal = React.memo(({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    console.log('🔴 Modal returning null - not rendering');
+    return null;
+  }
+
+  console.log('🟢 Modal rendering content');
 
   const sizes = {
     sm: 'max-w-md',
@@ -53,7 +61,7 @@ export const Modal = React.memo(({
       </div>
     </div>
   );
-});
+};
 
 Modal.displayName = 'Modal';
 

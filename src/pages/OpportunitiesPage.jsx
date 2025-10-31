@@ -3,6 +3,8 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { Modal } from '../components/ui/Modal';
+import OpportunityForm from '../components/OpportunityForm';
 
 const stageBadgeColors = {
   'Prospecting': { bg: '#dbeafe', text: '#1e40af', border: '#93c5fd' },
@@ -27,6 +29,9 @@ export const OpportunitiesPage = () => {
   const [stageFilter, setStageFilter] = useState('');
   const [sortBy, setSortBy] = useState('opportunity_name');
   const [sortOrder] = useState('asc');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingOpportunity, setEditingOpportunity] = useState(null);
+  const [formData, setFormData] = useState({});
 
   const filteredOpportunities = useMemo(() => {
     const filtered = filterOpportunities(searchTerm, stageFilter);
@@ -38,6 +43,26 @@ export const OpportunitiesPage = () => {
       deleteOpportunity(id);
     }
   }, [deleteOpportunity]);
+
+  const handleOpenModal = useCallback((opportunity = null) => {
+    console.log('🔵 handleOpenModal called with:', opportunity);
+    setEditingOpportunity(opportunity);
+    setFormData(opportunity || {});
+    setIsModalOpen(true);
+    console.log('🟢 Modal state set to true');
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+    setEditingOpportunity(null);
+    setFormData({});
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    // TODO: Implement save logic using useOpportunities hook
+    console.log('Saving opportunity:', formData);
+    handleCloseModal();
+  }, [formData, handleCloseModal]);
 
   const canEdit = userRole === 'admin' || userRole === 'sales';
 
@@ -60,23 +85,25 @@ export const OpportunitiesPage = () => {
           </p>
         </div>
         {canEdit && (
-          <button style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'linear-gradient(135deg, #0B3D91 0%, #00A3A3 100%)',
-            color: 'white',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            border: 'none',
-            cursor: 'pointer',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-          onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+          <button
+            onClick={() => handleOpenModal()}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'linear-gradient(135deg, #0B3D91 0%, #00A3A3 100%)',
+              color: 'white',
+              padding: '12px 20px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+            onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
           >
             <Plus style={{ width: '16px', height: '16px' }} />
             New Opportunity
@@ -313,26 +340,28 @@ export const OpportunitiesPage = () => {
                       {canEdit && (
                         <td style={{ padding: '16px 24px' }}>
                           <div style={{ display: 'flex', gap: '8px' }}>
-                            <button style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              padding: '6px 12px',
-                              background: '#f3f4f6',
-                              border: '1px solid #e5e7eb',
-                              borderRadius: '6px',
-                              fontSize: '13px',
-                              fontWeight: '500',
-                              color: '#374151',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.background = '#e5e7eb';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.background = '#f3f4f6';
-                            }}
+                            <button
+                              onClick={() => handleOpenModal(opp)}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '6px 12px',
+                                background: '#f3f4f6',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '6px',
+                                fontSize: '13px',
+                                fontWeight: '500',
+                                color: '#374151',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.background = '#e5e7eb';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.background = '#f3f4f6';
+                              }}
                             >
                               <Edit2 style={{ width: '14px', height: '14px' }} />
                               Edit
@@ -388,6 +417,21 @@ export const OpportunitiesPage = () => {
           </table>
         </div>
       </div>
+
+      {/* Opportunity Form Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={editingOpportunity ? 'Edit Opportunity' : 'New Opportunity'}
+        size="lg"
+      >
+        <OpportunityForm
+          formData={formData}
+          setFormData={setFormData}
+          onSubmit={handleSubmit}
+          onCancel={handleCloseModal}
+        />
+      </Modal>
     </div>
   );
 };
