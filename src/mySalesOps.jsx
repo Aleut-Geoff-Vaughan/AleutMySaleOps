@@ -17,7 +17,7 @@ const Section = ({ title, sectionKey, children, expandedSections, toggleSection 
 
 const MySalesOps = () => {
   // Users
-  const [users] = useState([
+  const [users, setUsers] = useState([
     { id: 1, username: 'admin', password: 'admin123', role: 'admin', firstName: 'Admin', lastName: 'User', isActive: true },
     { id: 2, username: 'sales', password: 'sales123', role: 'sales', firstName: 'Sales', lastName: 'Rep', isActive: true },
     { id: 3, username: 'viewer', password: 'viewer123', role: 'viewer', firstName: 'View', lastName: 'Only', isActive: true }

@@ -1,11 +1,11 @@
 import React from 'react';
-import mySalesOps from './mySalesOps';
-import './App.css';
+import MySalesOps from './mySalesOps';
+import './index.css';
 
 function App() {
   return (
     <div className="App">
-      <mySalesOps />
+      <MySalesOps />
     </div>
   );
 }
