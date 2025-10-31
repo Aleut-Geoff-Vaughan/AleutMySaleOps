@@ -1,27 +1,105 @@
-import React from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { TrendingUp } from 'lucide-react';
 
-const Header = ({ currentUser, onLogout }) => (
-  <div className="app-header">
-    <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <div className="inline-flex items-center justify-center w-12 h-12">
-          <img src={`${process.env.PUBLIC_URL}/logo.svg`} alt="Aleut Federal" className="h-10 w-auto" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">mySalesOps</h1>
-          <p className="text-xs text-slate-500">Business Management System</p>
-        </div>
-      </div>
+const Header = () => {
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
 
-      <div className="flex items-center gap-4">
-        <div className="text-right">
-          <div className="text-sm text-slate-500">Signed in as</div>
-          <div className="font-medium text-slate-900">{currentUser}</div>
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return (
+    <div style={{
+      background: 'white',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+      borderBottom: '1px solid #f3f4f6'
+    }}>
+      <div style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '16px 16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '48px',
+            height: '48px',
+            background: 'linear-gradient(135deg, #0B3D91 0%, #00A3A3 100%)',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          }}>
+            <TrendingUp style={{ height: '28px', width: '28px', color: 'white' }} />
+          </div>
+          <div>
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: '600',
+              color: '#0f172a',
+              margin: 0,
+              lineHeight: '1.2'
+            }}>
+              mySalesOps
+            </h1>
+            <p style={{
+              fontSize: '12px',
+              color: '#64748b',
+              margin: 0
+            }}>
+              Business Management System
+            </p>
+          </div>
         </div>
-        <button onClick={onLogout} className="btn-secondary">Sign out</button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{
+              fontSize: '12px',
+              color: '#64748b',
+              marginBottom: '2px'
+            }}>
+              Signed in as
+            </div>
+            <div style={{
+              fontWeight: '500',
+              color: '#0f172a',
+              fontSize: '14px'
+            }}>
+              {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              background: isHovered ? '#f9fafb' : 'white',
+              color: '#374151',
+              padding: '8px 16px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+            }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            Sign out
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default Header;

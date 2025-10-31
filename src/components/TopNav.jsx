@@ -1,55 +1,144 @@
-import React, { useState } from 'react';
-import { Home, List, Building2, Target, BarChart3, Settings, Users, Menu, X } from 'lucide-react';
+import { useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Home, List, Building2, Target, BarChart3, Settings, Menu, X, Briefcase } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-const NavButton = ({ active, onClick, children }) => (
-  <button onClick={onClick} className={`flex items-center gap-2 px-3 py-1 rounded-md transition-colors ${active ? 'bg-slate-100' : 'hover:bg-slate-50'}`}>
-    {children}
-  </button>
-);
-
-const TopNav = ({ activeView, setActiveView }) => {
-  const [open, setOpen] = useState(false);
-
-  const handleNav = (view) => {
-    setActiveView(view);
-    setOpen(false);
-  };
+const NavButton = ({ to, children, onClick }) => {
+  const location = useLocation();
+  const active = location.pathname === to;
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <nav className="bg-white border-b">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between py-3">
-          <div className="hidden lg:flex items-center space-x-4">
-            <NavButton active={activeView==='dashboard'} onClick={() => handleNav('dashboard')}><Home className="w-4 h-4" /> Dashboard</NavButton>
-            <NavButton active={activeView==='opportunities'} onClick={() => handleNav('opportunities')}><List className="w-4 h-4" /> Opportunities</NavButton>
-            <NavButton active={activeView==='entities'} onClick={() => handleNav('entities')}><Building2 className="w-4 h-4" /> Entities</NavButton>
-            <NavButton active={activeView==='forecasts'} onClick={() => handleNav('forecasts')}><Target className="w-4 h-4" /> Forecasts</NavButton>
-            <NavButton active={activeView==='reports'} onClick={() => handleNav('reports')}><BarChart3 className="w-4 h-4" /> Reports</NavButton>
+    <NavLink
+      to={to}
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '8px 12px',
+        borderRadius: '8px',
+        transition: 'all 0.2s',
+        textDecoration: 'none',
+        fontSize: '14px',
+        fontWeight: active ? '500' : '400',
+        background: active ? '#f1f5f9' : (isHovered ? '#f8fafc' : 'transparent'),
+        color: active ? '#0B3D91' : '#374151'
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {children}
+    </NavLink>
+  );
+};
+
+const TopNav = () => {
+  const [open, setOpen] = useState(false);
+  const { userRole } = useAuth();
+
+  return (
+    <nav style={{
+      background: 'white',
+      borderBottom: '1px solid #e5e7eb'
+    }}>
+      <div style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '0 16px'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 0'
+        }}>
+          {/* Desktop menu */}
+          <div style={{
+            display: 'none',
+            '@media (min-width: 1024px)': { display: 'flex' },
+            alignItems: 'center',
+            gap: '4px'
+          }} className="hidden lg:flex items-center space-x-1">
+            <NavButton to="/">
+              <Home style={{ width: '16px', height: '16px' }} /> Dashboard
+            </NavButton>
+            <NavButton to="/opportunities">
+              <List style={{ width: '16px', height: '16px' }} /> Opportunities
+            </NavButton>
+            <NavButton to="/agencies">
+              <Briefcase style={{ width: '16px', height: '16px' }} /> Agencies
+            </NavButton>
+            <NavButton to="/entities">
+              <Building2 style={{ width: '16px', height: '16px' }} /> Entities
+            </NavButton>
+            <NavButton to="/forecasts">
+              <Target style={{ width: '16px', height: '16px' }} /> Forecasts
+            </NavButton>
+            <NavButton to="/reporting">
+              <BarChart3 style={{ width: '16px', height: '16px' }} /> Reports
+            </NavButton>
+            {userRole === 'admin' && (
+              <NavButton to="/configuration">
+                <Settings style={{ width: '16px', height: '16px' }} /> Configuration
+              </NavButton>
+            )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden lg:block" />
-            <div className="hidden lg:flex items-center gap-3">
-              <NavButton active={activeView==='settings'} onClick={() => handleNav('settings')}><Settings className="w-4 h-4" /> Settings</NavButton>
-              <NavButton active={activeView==='users'} onClick={() => handleNav('users')}><Users className="w-4 h-4" /> Users</NavButton>
-            </div>
-
-            <button aria-label="Toggle menu" className="lg:hidden p-2 rounded-md hover:bg-slate-100" onClick={() => setOpen(prev => !prev)}>
-              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {/* Mobile menu button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }} className="lg:hidden">
+            <button
+              aria-label="Toggle menu"
+              style={{
+                padding: '8px',
+                borderRadius: '8px',
+                background: open ? '#f1f5f9' : 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onClick={() => setOpen(prev => !prev)}
+            >
+              {open ? <X style={{ width: '20px', height: '20px' }} /> : <Menu style={{ width: '20px', height: '20px' }} />}
             </button>
           </div>
         </div>
 
         {/* Mobile menu */}
-        <div className={`lg:hidden ${open ? 'block' : 'hidden'} pb-4`}>
-          <div className="space-y-2">
-            <NavButton active={activeView==='dashboard'} onClick={() => handleNav('dashboard')}><Home className="w-4 h-4" /> Dashboard</NavButton>
-            <NavButton active={activeView==='opportunities'} onClick={() => handleNav('opportunities')}><List className="w-4 h-4" /> Opportunities</NavButton>
-            <NavButton active={activeView==='entities'} onClick={() => handleNav('entities')}><Building2 className="w-4 h-4" /> Entities</NavButton>
-            <NavButton active={activeView==='forecasts'} onClick={() => handleNav('forecasts')}><Target className="w-4 h-4" /> Forecasts</NavButton>
-            <NavButton active={activeView==='reports'} onClick={() => handleNav('reports')}><BarChart3 className="w-4 h-4" /> Reports</NavButton>
-            <NavButton active={activeView==='settings'} onClick={() => handleNav('settings')}><Settings className="w-4 h-4" /> Settings</NavButton>
-            <NavButton active={activeView==='users'} onClick={() => handleNav('users')}><Users className="w-4 h-4" /> Users</NavButton>
+        <div style={{
+          display: open ? 'block' : 'none',
+          paddingBottom: '16px'
+        }} className="lg:hidden">
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }} onClick={() => setOpen(false)}>
+            <NavButton to="/" onClick={() => setOpen(false)}>
+              <Home style={{ width: '16px', height: '16px' }} /> Dashboard
+            </NavButton>
+            <NavButton to="/opportunities" onClick={() => setOpen(false)}>
+              <List style={{ width: '16px', height: '16px' }} /> Opportunities
+            </NavButton>
+            <NavButton to="/agencies" onClick={() => setOpen(false)}>
+              <Briefcase style={{ width: '16px', height: '16px' }} /> Agencies
+            </NavButton>
+            <NavButton to="/entities" onClick={() => setOpen(false)}>
+              <Building2 style={{ width: '16px', height: '16px' }} /> Entities
+            </NavButton>
+            <NavButton to="/forecasts" onClick={() => setOpen(false)}>
+              <Target style={{ width: '16px', height: '16px' }} /> Forecasts
+            </NavButton>
+            <NavButton to="/reporting" onClick={() => setOpen(false)}>
+              <BarChart3 style={{ width: '16px', height: '16px' }} /> Reports
+            </NavButton>
+            {userRole === 'admin' && (
+              <NavButton to="/configuration" onClick={() => setOpen(false)}>
+                <Settings style={{ width: '16px', height: '16px' }} /> Configuration
+              </NavButton>
+            )}
           </div>
         </div>
       </div>
