@@ -47,6 +47,24 @@ export const AppProvider = ({ children }) => {
     { id: 4, name: 'State & Local', order: 4, isActive: true }
   ]);
 
+  const [vehicleTypes, setVehicleTypes] = useState([
+    { id: 1, name: 'GWAC', isActive: true },
+    { id: 2, name: 'IDIQ', isActive: true },
+    { id: 3, name: 'BPA', isActive: true },
+    { id: 4, name: 'MATOC', isActive: true },
+    { id: 5, name: 'SATOC', isActive: true },
+    { id: 6, name: 'OTA', isActive: true },
+    { id: 7, name: 'GSA Schedule', isActive: true },
+    { id: 8, name: 'Other', isActive: true }
+  ]);
+
+  const [vehicleStatuses, setVehicleStatuses] = useState([
+    { id: 1, name: 'Active', isActive: true },
+    { id: 2, name: 'Pending', isActive: true },
+    { id: 3, name: 'Expired', isActive: true },
+    { id: 4, name: 'Inactive', isActive: true }
+  ]);
+
   // Business Data
   const [agencies, setAgencies] = useState([
     { id: 1, name: 'Department of Defense', city: 'Washington', state: 'DC', agencyType: 'Federal', phone: '703-571-3343', website: 'defense.gov', address: '1400 Defense Pentagon', zip: '20301' },
@@ -70,7 +88,8 @@ export const AppProvider = ({ children }) => {
       "close_date": "2022-04-01",
       "entityId": 1,
       "forecastGroupId": 1,
-      "capabilities": []
+      "capabilities": [],
+      "contractVehicleId": null
     },
     {
       "id": 101,
@@ -668,7 +687,8 @@ export const AppProvider = ({ children }) => {
       "close_date": "2025-11-03",
       "entityId": 1,
       "forecastGroupId": 3,
-      "capabilities": []
+      "capabilities": [],
+      "contractVehicleId": 1
     },
     {
       "id": 147,
@@ -756,6 +776,47 @@ export const AppProvider = ({ children }) => {
     }
   ]);
 
+  const [contractVehicles, setContractVehicles] = useState([
+    {
+      id: 1,
+      name: 'OASIS+ 8(a)',
+      vehicleType: 'GWAC',
+      govwinId: 'OASIS-8A-2025',
+      description: 'One Acquisition Solution for Integrated Services Plus - 8(a) Small Business',
+      agency_id: 1,
+      owner: 'GSA',
+      status: 'Active',
+      startDate: '2024-01-15',
+      expirationDate: '2029-01-14',
+      ceilingValue: 15000000000,
+      minOrderValue: 3500,
+      maxOrderValue: 5000000,
+      setAsideType: '8(a)',
+      contacts: [],
+      documents: [],
+      notes: 'Primary GWAC for federal IT services'
+    },
+    {
+      id: 2,
+      name: 'GSA IT Schedule 70',
+      vehicleType: 'GSA Schedule',
+      govwinId: 'GSA-IT70-2023',
+      description: 'General Services Administration IT Schedule 70',
+      agency_id: 1,
+      owner: 'GSA',
+      status: 'Active',
+      startDate: '2023-06-01',
+      expirationDate: '2028-05-31',
+      ceilingValue: null,
+      minOrderValue: 2500,
+      maxOrderValue: null,
+      setAsideType: 'Small Business',
+      contacts: [],
+      documents: [],
+      notes: 'GSA Schedule for IT products and services'
+    }
+  ]);
+
   const [powerBIReports] = useState([
     { id: 1, name: 'Sales Pipeline Analysis', embedUrl: 'https://app.powerbi.com/view?r=SAMPLE_REPORT_1', description: 'Comprehensive pipeline analysis and forecasting' },
     { id: 2, name: 'Entity Performance', embedUrl: 'https://app.powerbi.com/view?r=SAMPLE_REPORT_2', description: 'Performance metrics by entity and certification' },
@@ -767,6 +828,8 @@ export const AppProvider = ({ children }) => {
   const activeCapabilities = useMemo(() => capabilities.filter(c => c.isActive), [capabilities]);
   const activeAgencyTypes = useMemo(() => agencyTypes.filter(a => a.isActive), [agencyTypes]);
   const activeForecastGroups = useMemo(() => forecastGroups.filter(f => f.isActive), [forecastGroups]);
+  const activeVehicleTypes = useMemo(() => vehicleTypes.filter(v => v.isActive), [vehicleTypes]);
+  const activeVehicleStatuses = useMemo(() => vehicleStatuses.filter(v => v.isActive), [vehicleStatuses]);
 
   const value = {
     // Configuration
@@ -780,6 +843,10 @@ export const AppProvider = ({ children }) => {
     setAgencyTypes,
     forecastGroups,
     setForecastGroups,
+    vehicleTypes,
+    setVehicleTypes,
+    vehicleStatuses,
+    setVehicleStatuses,
 
     // Business Data
     agencies,
@@ -792,13 +859,17 @@ export const AppProvider = ({ children }) => {
     setEntities,
     forecasts,
     setForecasts,
+    contractVehicles,
+    setContractVehicles,
     powerBIReports,
 
     // Computed
     activeStages,
     activeCapabilities,
     activeAgencyTypes,
-    activeForecastGroups
+    activeForecastGroups,
+    activeVehicleTypes,
+    activeVehicleStatuses
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, List, Building2, Target, BarChart3, Settings, Menu, X, Briefcase } from 'lucide-react';
+import { Home, List, Building2, Target, BarChart3, Settings, Menu, X, Briefcase, FileText } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const NavButton = ({ to, children, onClick }) => {
@@ -69,6 +69,9 @@ const TopNav = () => {
             <NavButton to="/agencies">
               <Briefcase style={{ width: '16px', height: '16px' }} /> Agencies
             </NavButton>
+            <NavButton to="/contract-vehicles">
+              <FileText style={{ width: '16px', height: '16px' }} /> Contract Vehicles
+            </NavButton>
             <NavButton to="/entities">
               <Building2 style={{ width: '16px', height: '16px' }} /> Entities
             </NavButton>
@@ -124,6 +127,9 @@ const TopNav = () => {
             </NavButton>
             <NavButton to="/agencies" onClick={() => setOpen(false)}>
               <Briefcase style={{ width: '16px', height: '16px' }} /> Agencies
+            </NavButton>
+            <NavButton to="/contract-vehicles" onClick={() => setOpen(false)}>
+              <FileText style={{ width: '16px', height: '16px' }} /> Contract Vehicles
             </NavButton>
             <NavButton to="/entities" onClick={() => setOpen(false)}>
               <Building2 style={{ width: '16px', height: '16px' }} /> Entities

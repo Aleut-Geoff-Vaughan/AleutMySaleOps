@@ -9,7 +9,12 @@ import { MainLayout } from './layouts/MainLayout';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { OpportunitiesPage } from './pages/OpportunitiesPage';
+import { OpportunityFormPage } from './pages/OpportunityFormPage';
 import { AgenciesPage } from './pages/AgenciesPage';
+import { AgencyFormPage } from './pages/AgencyFormPage';
+import { ContactFormPage } from './pages/ContactFormPage';
+import { ContractVehiclesPage } from './pages/ContractVehiclesPage';
+import { ContractVehicleFormPage } from './pages/ContractVehicleFormPage';
 import { EntitiesPage } from './pages/EntitiesPage';
 import { ForecastsPage } from './pages/ForecastsPage';
 import { ReportingPage } from './pages/ReportingPage';
@@ -43,7 +48,16 @@ const App = () => {
               >
                 <Route index element={<DashboardPage />} />
                 <Route path="opportunities" element={<OpportunitiesPage />} />
+                <Route path="opportunities/new" element={<OpportunityFormPage />} />
+                <Route path="opportunities/:id/edit" element={<OpportunityFormPage />} />
                 <Route path="agencies" element={<AgenciesPage />} />
+                <Route path="agencies/new" element={<AgencyFormPage />} />
+                <Route path="agencies/:id/edit" element={<AgencyFormPage />} />
+                <Route path="contacts/new" element={<ContactFormPage />} />
+                <Route path="contacts/:id/edit" element={<ContactFormPage />} />
+                <Route path="contract-vehicles" element={<ContractVehiclesPage />} />
+                <Route path="contract-vehicles/new" element={<ContractVehicleFormPage />} />
+                <Route path="contract-vehicles/:id/edit" element={<ContractVehicleFormPage />} />
                 <Route path="entities" element={<EntitiesPage />} />
                 <Route path="forecasts" element={<ForecastsPage />} />
                 <Route path="reporting" element={<ReportingPage />} />

@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from 'react';
-import { useApp } from '../contexts/AppContext';
+import { useApp as useAppContext } from '../contexts/AppContext';
 
 export const useAgencies = () => {
-  const { agencies, setAgencies, contacts } = useApp();
+  const { agencies, setAgencies, contacts } = useAppContext();
 
   const getAgencyContacts = useCallback((agencyId) => {
     return contacts.filter(c => c.agencyId === agencyId);

@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAgencies } from '../hooks/useAgencies';
+import { useContacts } from '../hooks/useContacts';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Building2, Phone, Mail, Globe } from 'lucide-react';
+import { Plus, Building2, Phone, Mail, Globe, Edit2, Trash2, UserPlus } from 'lucide-react';
 
-const AgencyCard = ({ agency, canEdit }) => {
+const AgencyCard = ({ agency, canEdit, onEdit, onAddContact, onEditContact, onDeleteContact }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -121,31 +123,80 @@ const AgencyCard = ({ agency, canEdit }) => {
                   padding: '12px',
                   background: '#f9fafb',
                   borderRadius: '8px',
-                  border: '1px solid #e5e7eb'
+                  border: '1px solid #e5e7eb',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start'
                 }}
               >
-                <p style={{ fontWeight: '600', color: '#111827', fontSize: '14px', marginBottom: '2px' }}>
-                  {contact.firstName} {contact.lastName}
-                </p>
-                <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '6px' }}>
-                  {contact.title}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Mail style={{ width: '12px', height: '12px', color: '#9ca3af' }} />
-                  <a
-                    href={`mailto:${contact.email}`}
-                    style={{
-                      fontSize: '13px',
-                      color: '#0B3D91',
-                      textDecoration: 'none',
-                      fontWeight: '500'
-                    }}
-                    onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
-                    onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
-                  >
-                    {contact.email}
-                  </a>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: '600', color: '#111827', fontSize: '14px', marginBottom: '2px' }}>
+                    {contact.firstName} {contact.lastName}
+                  </p>
+                  <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '6px' }}>
+                    {contact.title}
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Mail style={{ width: '12px', height: '12px', color: '#9ca3af' }} />
+                    <a
+                      href={`mailto:${contact.email}`}
+                      style={{
+                        fontSize: '13px',
+                        color: '#0B3D91',
+                        textDecoration: 'none',
+                        fontWeight: '500'
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+                      onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+                    >
+                      {contact.email}
+                    </a>
+                  </div>
                 </div>
+                {canEdit && (
+                  <div style={{ display: 'flex', gap: '6px', marginLeft: '12px' }}>
+                    <button
+                      onClick={() => onEditContact(contact.id)}
+                      style={{
+                        padding: '6px',
+                        background: 'white',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = '#f3f4f6'}
+                      onMouseLeave={(e) => e.target.style.background = 'white'}
+                      title="Edit contact"
+                    >
+                      <Edit2 style={{ width: '12px', height: '12px', color: '#374151' }} />
+                    </button>
+                    <button
+                      onClick={() => onDeleteContact(contact.id)}
+                      style={{
+                        padding: '6px',
+                        background: 'white',
+                        border: '1px solid #fca5a5',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = '#fee2e2';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'white';
+                      }}
+                      title="Delete contact"
+                    >
+                      <Trash2 style={{ width: '12px', height: '12px', color: '#991b1b' }} />
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -160,38 +211,52 @@ const AgencyCard = ({ agency, canEdit }) => {
           paddingTop: '16px',
           borderTop: '1px solid #e5e7eb'
         }}>
-          <button style={{
-            flex: 1,
-            padding: '10px 16px',
-            background: 'linear-gradient(135deg, #0B3D91 0%, #00A3A3 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.transform = 'translateY(-1px)'}
-          onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+          <button
+            onClick={() => onEdit(agency.id)}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '10px 16px',
+              background: 'linear-gradient(135deg, #0B3D91 0%, #00A3A3 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.transform = 'translateY(-1px)'}
+            onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
           >
+            <Edit2 style={{ width: '14px', height: '14px' }} />
             Edit Agency
           </button>
-          <button style={{
-            flex: 1,
-            padding: '10px 16px',
-            background: 'white',
-            color: '#374151',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#f9fafb'}
-          onMouseLeave={(e) => e.target.style.background = 'white'}
+          <button
+            onClick={() => onAddContact(agency.id)}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '10px 16px',
+              background: 'white',
+              color: '#374151',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.background = '#f9fafb'}
+            onMouseLeave={(e) => e.target.style.background = 'white'}
           >
+            <UserPlus style={{ width: '14px', height: '14px' }} />
             Add Contact
           </button>
         </div>
@@ -201,9 +266,33 @@ const AgencyCard = ({ agency, canEdit }) => {
 };
 
 export const AgenciesPage = () => {
+  const navigate = useNavigate();
   const { userRole } = useAuth();
   const { agenciesWithContacts } = useAgencies();
+  const { deleteContact } = useContacts();
   const canEdit = userRole === 'admin' || userRole === 'sales';
+
+  const handleCreateNew = useCallback(() => {
+    navigate('/agencies/new');
+  }, [navigate]);
+
+  const handleEdit = useCallback((agencyId) => {
+    navigate(`/agencies/${agencyId}/edit`);
+  }, [navigate]);
+
+  const handleAddContact = useCallback((agencyId) => {
+    navigate('/contacts/new', { state: { agencyId } });
+  }, [navigate]);
+
+  const handleEditContact = useCallback((contactId) => {
+    navigate(`/contacts/${contactId}/edit`);
+  }, [navigate]);
+
+  const handleDeleteContact = useCallback((contactId) => {
+    if (window.confirm('Are you sure you want to delete this contact?')) {
+      deleteContact(contactId);
+    }
+  }, [deleteContact]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -224,23 +313,25 @@ export const AgenciesPage = () => {
           </p>
         </div>
         {canEdit && (
-          <button style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'linear-gradient(135deg, #0B3D91 0%, #00A3A3 100%)',
-            color: 'white',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            border: 'none',
-            cursor: 'pointer',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-          onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+          <button
+            onClick={handleCreateNew}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'linear-gradient(135deg, #0B3D91 0%, #00A3A3 100%)',
+              color: 'white',
+              padding: '12px 20px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+            onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
           >
             <Plus style={{ width: '16px', height: '16px' }} />
             New Agency
@@ -255,7 +346,15 @@ export const AgenciesPage = () => {
         gap: '24px'
       }}>
         {agenciesWithContacts.map((agency) => (
-          <AgencyCard key={agency.id} agency={agency} canEdit={canEdit} />
+          <AgencyCard
+            key={agency.id}
+            agency={agency}
+            canEdit={canEdit}
+            onEdit={handleEdit}
+            onAddContact={handleAddContact}
+            onEditContact={handleEditContact}
+            onDeleteContact={handleDeleteContact}
+          />
         ))}
       </div>
     </div>

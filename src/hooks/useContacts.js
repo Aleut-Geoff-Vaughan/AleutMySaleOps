@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { useApp } from '../contexts/AppContext';
+import { useApp as useAppContext } from '../contexts/AppContext';
 
 export const useContacts = () => {
-  const { contacts, setContacts, agencies } = useApp();
+  const { contacts, setContacts, agencies } = useAppContext();
 
   const getAgencyName = useCallback((agencyId) => {
     return agencies.find(a => a.id === agencyId)?.name || 'Unknown';

@@ -1,8 +1,8 @@
 import { useMemo, useCallback } from 'react';
-import { useApp } from '../contexts/AppContext';
+import { useApp as useAppContext } from '../contexts/AppContext';
 
 export const useOpportunities = () => {
-  const { opportunities, setOpportunities, agencies, contacts, entities, forecastGroups } = useApp();
+  const { opportunities, setOpportunities, agencies, contacts, entities, forecastGroups } = useAppContext();
 
   const getAgencyName = useCallback((id) => {
     return agencies.find(a => a.id === id)?.name || 'Unknown';

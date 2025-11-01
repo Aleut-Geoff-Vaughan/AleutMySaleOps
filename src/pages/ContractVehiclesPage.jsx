@@ -1,52 +1,88 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useOpportunities } from '../hooks/useOpportunities';
+import { useContractVehicles } from '../hooks/useContractVehicles';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, FileText } from 'lucide-react';
 
-const stageBadgeColors = {
-  'Prospecting': { bg: '#dbeafe', text: '#1e40af', border: '#93c5fd' },
-  'Qualification': { bg: '#e0e7ff', text: '#4338ca', border: '#a5b4fc' },
-  'Proposal': { bg: '#fef3c7', text: '#92400e', border: '#fcd34d' },
-  'Negotiation': { bg: '#fed7aa', text: '#9a3412', border: '#fdba74' },
-  'Closed Won': { bg: '#d1fae5', text: '#065f46', border: '#6ee7b7' },
-  'Closed Lost': { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' }
+const statusBadgeColors = {
+  'Active': { bg: '#d1fae5', text: '#065f46', border: '#6ee7b7' },
+  'Pending': { bg: '#fef3c7', text: '#92400e', border: '#fcd34d' },
+  'Expired': { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
+  'Inactive': { bg: '#e5e7eb', text: '#374151', border: '#d1d5db' }
 };
 
-export const OpportunitiesPage = () => {
+export const ContractVehiclesPage = () => {
   const navigate = useNavigate();
   const { userRole } = useAuth();
-  const { activeStages } = useApp();
+  const { activeVehicleTypes, activeVehicleStatuses } = useApp();
   const {
-    getAgencyName,
-    filterOpportunities,
-    sortOpportunities,
-    deleteOpportunity
-  } = useOpportunities();
+    contractVehiclesWithDetails,
+    deleteContractVehicle
+  } = useContractVehicles();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [stageFilter, setStageFilter] = useState('');
-  const [sortBy, setSortBy] = useState('opportunity_name');
-  const [sortOrder] = useState('asc');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [sortBy, setSortBy] = useState('name');
 
-  const filteredOpportunities = useMemo(() => {
-    const filtered = filterOpportunities(searchTerm, stageFilter);
-    return sortOpportunities(filtered, sortBy, sortOrder);
-  }, [searchTerm, stageFilter, sortBy, sortOrder, filterOpportunities, sortOpportunities]);
+  const filteredVehicles = useMemo(() => {
+    let filtered = contractVehiclesWithDetails;
+
+    // Search filter
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      filtered = filtered.filter(v =>
+        v.name.toLowerCase().includes(lower) ||
+        v.description?.toLowerCase().includes(lower) ||
+        v.govwinId?.toLowerCase().includes(lower) ||
+        v.agencyName.toLowerCase().includes(lower)
+      );
+    }
+
+    // Type filter
+    if (typeFilter) {
+      filtered = filtered.filter(v => v.vehicleType === typeFilter);
+    }
+
+    // Status filter
+    if (statusFilter) {
+      filtered = filtered.filter(v => v.status === statusFilter);
+    }
+
+    // Sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'type':
+          return a.vehicleType.localeCompare(b.vehicleType);
+        case 'status':
+          return a.status.localeCompare(b.status);
+        case 'expirationDate':
+          return (a.expirationDate || '').localeCompare(b.expirationDate || '');
+        case 'opportunities':
+          return b.opportunityCount - a.opportunityCount;
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [contractVehiclesWithDetails, searchTerm, typeFilter, statusFilter, sortBy]);
 
   const handleDelete = useCallback((id) => {
-    if (window.confirm('Are you sure you want to delete this opportunity?')) {
-      deleteOpportunity(id);
+    if (window.confirm('Are you sure you want to delete this contract vehicle?')) {
+      deleteContractVehicle(id);
     }
-  }, [deleteOpportunity]);
+  }, [deleteContractVehicle]);
 
   const handleCreateNew = useCallback(() => {
-    navigate('/opportunities/new');
+    navigate('/contract-vehicles/new');
   }, [navigate]);
 
-  const handleEdit = useCallback((opportunityId) => {
-    navigate(`/opportunities/${opportunityId}/edit`);
+  const handleEdit = useCallback((vehicleId) => {
+    navigate(`/contract-vehicles/${vehicleId}/edit`);
   }, [navigate]);
 
   const canEdit = userRole === 'admin' || userRole === 'sales';
@@ -63,10 +99,10 @@ export const OpportunitiesPage = () => {
       }}>
         <div>
           <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
-            Opportunities
+            Contract Vehicles
           </h1>
           <p style={{ color: '#6b7280', fontSize: '16px' }}>
-            Manage your sales pipeline
+            Manage GWACs, IDIQs, BPAs, and other contract vehicles
           </p>
         </div>
         {canEdit && (
@@ -91,7 +127,7 @@ export const OpportunitiesPage = () => {
             onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
           >
             <Plus style={{ width: '16px', height: '16px' }} />
-            New Opportunity
+            New Contract Vehicle
           </button>
         )}
       </div>
@@ -112,7 +148,7 @@ export const OpportunitiesPage = () => {
         }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '16px'
           }}>
             {/* Search */}
@@ -128,7 +164,7 @@ export const OpportunitiesPage = () => {
               }} />
               <input
                 type="text"
-                placeholder="Search opportunities..."
+                placeholder="Search vehicles..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -148,10 +184,10 @@ export const OpportunitiesPage = () => {
               />
             </div>
 
-            {/* Stage Filter */}
+            {/* Type Filter */}
             <select
-              value={stageFilter}
-              onChange={(e) => setStageFilter(e.target.value)}
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
               style={{
                 padding: '10px 12px',
                 border: '2px solid #e5e7eb',
@@ -162,9 +198,29 @@ export const OpportunitiesPage = () => {
                 background: 'white'
               }}
             >
-              <option value="">All Stages</option>
-              {activeStages.map(s => (
-                <option key={s.name} value={s.name}>{s.name}</option>
+              <option value="">All Types</option>
+              {activeVehicleTypes.map(t => (
+                <option key={t.id} value={t.name}>{t.name}</option>
+              ))}
+            </select>
+
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                padding: '10px 12px',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '14px',
+                outline: 'none',
+                cursor: 'pointer',
+                background: 'white'
+              }}
+            >
+              <option value="">All Statuses</option>
+              {activeVehicleStatuses.map(s => (
+                <option key={s.id} value={s.name}>{s.name}</option>
               ))}
             </select>
 
@@ -182,10 +238,11 @@ export const OpportunitiesPage = () => {
                 background: 'white'
               }}
             >
-              <option value="opportunity_name">Sort by Name</option>
-              <option value="value">Sort by Value</option>
-              <option value="close_date">Sort by Close Date</option>
-              <option value="probability">Sort by Probability</option>
+              <option value="name">Sort by Name</option>
+              <option value="type">Sort by Type</option>
+              <option value="status">Sort by Status</option>
+              <option value="expirationDate">Sort by Expiration</option>
+              <option value="opportunities">Sort by Opportunities</option>
             </select>
           </div>
         </div>
@@ -204,7 +261,17 @@ export const OpportunitiesPage = () => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb'
-                }}>Opportunity</th>
+                }}>Vehicle Name</th>
+                <th style={{
+                  padding: '16px 24px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  borderBottom: '1px solid #e5e7eb'
+                }}>Type</th>
                 <th style={{
                   padding: '16px 24px',
                   textAlign: 'left',
@@ -224,7 +291,7 @@ export const OpportunitiesPage = () => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb'
-                }}>Stage</th>
+                }}>Status</th>
                 <th style={{
                   padding: '16px 24px',
                   textAlign: 'left',
@@ -234,7 +301,7 @@ export const OpportunitiesPage = () => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb'
-                }}>Value</th>
+                }}>Expiration</th>
                 <th style={{
                   padding: '16px 24px',
                   textAlign: 'left',
@@ -244,17 +311,7 @@ export const OpportunitiesPage = () => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb'
-                }}>Probability</th>
-                <th style={{
-                  padding: '16px 24px',
-                  textAlign: 'left',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  borderBottom: '1px solid #e5e7eb'
-                }}>Close Date</th>
+                }}>Opportunities</th>
                 {canEdit && (
                   <th style={{
                     padding: '16px 24px',
@@ -270,11 +327,11 @@ export const OpportunitiesPage = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredOpportunities.length > 0 ? (
-                filteredOpportunities.map((opp) => {
-                  const colors = stageBadgeColors[opp.stage] || stageBadgeColors['Prospecting'];
+              {filteredVehicles.length > 0 ? (
+                filteredVehicles.map((vehicle) => {
+                  const colors = statusBadgeColors[vehicle.status] || statusBadgeColors['Active'];
                   return (
-                    <tr key={opp.id} style={{
+                    <tr key={vehicle.id} style={{
                       borderBottom: '1px solid #e5e7eb',
                       transition: 'background 0.2s'
                     }}
@@ -282,16 +339,36 @@ export const OpportunitiesPage = () => {
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
                       <td style={{
+                        padding: '16px 24px'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <FileText style={{ width: '16px', height: '16px', color: '#6b7280' }} />
+                          <div>
+                            <div style={{
+                              fontSize: '14px',
+                              fontWeight: '600',
+                              color: '#111827'
+                            }}>{vehicle.name}</div>
+                            {vehicle.govwinId && (
+                              <div style={{
+                                fontSize: '12px',
+                                color: '#9ca3af'
+                              }}>{vehicle.govwinId}</div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{
                         padding: '16px 24px',
                         fontSize: '14px',
-                        fontWeight: '600',
-                        color: '#111827'
-                      }}>{opp.opportunity_name}</td>
+                        color: '#6b7280',
+                        fontWeight: '500'
+                      }}>{vehicle.vehicleType}</td>
                       <td style={{
                         padding: '16px 24px',
                         fontSize: '14px',
                         color: '#6b7280'
-                      }}>{getAgencyName(opp.agency_id)}</td>
+                      }}>{vehicle.agencyName}</td>
                       <td style={{ padding: '16px 24px' }}>
                         <span style={{
                           display: 'inline-flex',
@@ -303,30 +380,25 @@ export const OpportunitiesPage = () => {
                           color: colors.text,
                           border: `1px solid ${colors.border}`
                         }}>
-                          {opp.stage}
+                          {vehicle.status}
                         </span>
                       </td>
                       <td style={{
                         padding: '16px 24px',
                         fontSize: '14px',
+                        color: '#6b7280'
+                      }}>{vehicle.expirationDate || 'N/A'}</td>
+                      <td style={{
+                        padding: '16px 24px',
+                        fontSize: '14px',
                         fontWeight: '600',
                         color: '#111827'
-                      }}>${(opp.value || 0).toLocaleString()}</td>
-                      <td style={{
-                        padding: '16px 24px',
-                        fontSize: '14px',
-                        color: '#6b7280'
-                      }}>{opp.probability}%</td>
-                      <td style={{
-                        padding: '16px 24px',
-                        fontSize: '14px',
-                        color: '#6b7280'
-                      }}>{opp.close_date}</td>
+                      }}>{vehicle.opportunityCount}</td>
                       {canEdit && (
                         <td style={{ padding: '16px 24px' }}>
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button
-                              onClick={() => handleEdit(opp.id)}
+                              onClick={() => handleEdit(vehicle.id)}
                               style={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -352,7 +424,7 @@ export const OpportunitiesPage = () => {
                               Edit
                             </button>
                             <button
-                              onClick={() => handleDelete(opp.id)}
+                              onClick={() => handleDelete(vehicle.id)}
                               style={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -394,7 +466,7 @@ export const OpportunitiesPage = () => {
                       fontSize: '14px'
                     }}
                   >
-                    No opportunities found
+                    No contract vehicles found
                   </td>
                 </tr>
               )}

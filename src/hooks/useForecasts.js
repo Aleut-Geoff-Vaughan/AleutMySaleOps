@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from 'react';
-import { useApp } from '../contexts/AppContext';
+import { useApp as useAppContext } from '../contexts/AppContext';
 
 export const useForecasts = () => {
-  const { forecasts, setForecasts, forecastGroups } = useApp();
+  const { forecasts, setForecasts, forecastGroups } = useAppContext();
 
   const getForecastGroupName = useCallback((id) => {
     return forecastGroups.find(g => g.id === id)?.name || 'Unknown';

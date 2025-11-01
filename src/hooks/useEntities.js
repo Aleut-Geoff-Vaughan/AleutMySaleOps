@@ -1,8 +1,8 @@
 import { useMemo, useCallback } from 'react';
-import { useApp } from '../contexts/AppContext';
+import { useApp as useAppContext } from '../contexts/AppContext';
 
 export const useEntities = () => {
-  const { entities, setEntities, opportunities } = useApp();
+  const { entities, setEntities, opportunities } = useAppContext();
 
   const calculateEntityStats = useCallback((entityId) => {
     const entityOpps = opportunities.filter(o => o.entityId === entityId);
